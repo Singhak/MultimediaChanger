@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">MultimediaChanger</string>
+    <string name="device_not_supported_message">FFmpeg is not supported on your device</string>
+    <string name="device_not_supported">Device not supported</string>
+</resources>
