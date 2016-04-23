@@ -48,9 +48,12 @@ public class Utility {
 
     public static String getDuration(String path, Context context) {
         MediaPlayer mp = MediaPlayer.create(context, Uri.parse(path));
-        int duration = mp.getDuration();
-        mp.release();
-        return getTimeForTrackFormat(duration);
+        if(mp != null) {
+            int duration = mp.getDuration();
+            mp.release();
+            return getTimeForTrackFormat(duration);
+        }
+        return getTimeForTrackFormat(0);
     }
 
     public static String getOutputPath() {

@@ -2,7 +2,6 @@ package com.developer.alienapps.multimediachanger;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,9 +19,9 @@ import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegCommandAlreadyRunnin
 
 public class StartupScreen extends AppCompatActivity {
 
-    private static final String TAG = StartupScreen.class.getSimpleName();
     final static int ON_VIDEO_REQUEST = 1;
     final static int ON_AUDIO_REQUEST = 2;
+    private static final String TAG = StartupScreen.class.getSimpleName();
     EditText vbrowseText;
     EditText abrowseText;
     Button vbrowseButton;
@@ -30,6 +29,7 @@ public class StartupScreen extends AppCompatActivity {
     Button executeButton;
     String videopath, audioPath;
     private ProgressDialog progressBar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,16 +63,16 @@ public class StartupScreen extends AppCompatActivity {
         executeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String output_path = Utility.getOutputPath()+Utility.generateFilename()+".mp4";
-               String cmd = String.format(Utility.REMOVE_ADD_AUDIO_TO_VIDEO, videopath, audioPath, output_path);
+                String output_path = Utility.getOutputPath() + Utility.generateFilename() + ".mp4";
+                String cmd = String.format(Utility.REMOVE_ADD_AUDIO_TO_VIDEO, videopath, audioPath, output_path);
                 execFFmpegBinary(cmd);
             }
         });
-        progressBar = new ProgressDialog(this);
+//        progressBar = new ProgressDialog(this);
 //        progressBar.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressBar.setTitle("FFmpeg4Android Transcoding...");
-        progressBar.setMessage("Press the cancel button to end the operation");
-        progressBar.setCancelable(false);
+//        progressBar.setTitle("FFmpeg4Android Transcoding...");
+//        progressBar.setMessage("Press the cancel button to end the operation");
+//        progressBar.setCancelable(false);
        /* progressBar.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -101,20 +101,22 @@ public class StartupScreen extends AppCompatActivity {
 
     private void execFFmpegBinary(final String comd) {
         String[] command = comd.split(" ");
-        Log.i(TAG, "execFFmpegBinary: "+comd);
+        Log.i(TAG, "execFFmpegBinary: " + comd);
         FFmpeg fFmpeg = FFmpeg.getInstance(this);
-        PowerManager powerManager = (PowerManager)this.getSystemService(Activity.POWER_SERVICE);
+        PowerManager powerManager = (PowerManager) this.getSystemService(Activity.POWER_SERVICE);
         PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "VK_LOCK");
         wakeLock.acquire();
         try {
             fFmpeg.execute(command, new ExecuteBinaryResponseHandler() {
                 @Override
                 public void onFailure(String s) {
-                    Log.d(TAG, "onFailure: "+s);
+                    Log.d(TAG, "onFailure: " + s);
+                    Toast.makeText(StartupScreen.this, "There is some problem : "+s, Toast.LENGTH_LONG).show();
                 }
 
                 @Override
                 public void onSuccess(String s) {
+                    Toast.makeText(StartupScreen.this, "Succes full conversion", Toast.LENGTH_LONG).show();
                 }
 
                 @Override
@@ -124,6 +126,7 @@ public class StartupScreen extends AppCompatActivity {
 
                 @Override
                 public void onStart() {
+                    progressBar = new ProgressDialog(StartupScreen.this);
                     progressBar.setMessage("Processing...");
                     progressBar.show();
                 }
