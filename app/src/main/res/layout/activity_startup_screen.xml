@@ -7,6 +7,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:background="@color/common_signin_btn_light_text_disabled"
     tools:context="com.developer.alienapps.multimediachanger.StartupScreen">
 
     <EditText
@@ -14,7 +15,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:hint="Browse Video" />
+        android:hint="Browse Video"
+        android:maxLines="1"
+        android:editable="false"/>
 
     <Button
         android:id="@+id/vbrowse"
@@ -23,13 +26,34 @@
         android:layout_alignParentRight="true"
         android:text="Browse" />
 
+    <Button
+        android:id="@+id/trim_video"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/vbrowse"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="8dp"
+        android:text="Trim Video" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="+"
+        android:layout_marginTop="8dp"
+        android:textSize="40dp"
+        android:layout_centerInParent="true"
+        android:layout_below="@id/trim_video"
+        android:id="@+id/plussign"/>
+
     <EditText
         android:id="@+id/apath"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@id/vpath"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_below="@id/plussign"
+        android:layout_marginTop="8dp"
+        android:maxLines="1"
+        android:editable="false"
         android:hint="Browse Audio" />
 
     <Button
@@ -37,17 +61,35 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_below="@id/vbrowse"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_below="@id/plussign"
+        android:layout_marginTop="8dp"
         android:text="Browse" />
+
+    <Button
+        android:id="@+id/trim_audio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/abrowse"
+        android:layout_centerInParent="true"
+        android:text="Trim Audio" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="="
+        android:layout_marginTop="8dp"
+        android:textSize="40dp"
+        android:layout_centerInParent="true"
+        android:layout_below="@id/trim_audio"
+        android:id="@+id/equalsign"/>
 
     <Button
         android:id="@+id/run"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/abrowse"
+        android:layout_below="@+id/equalsign"
         android:layout_centerInParent="true"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:text="Run" />
+        android:layout_marginTop="8dp"
+        android:text="Run Merge" />
 
 </RelativeLayout>

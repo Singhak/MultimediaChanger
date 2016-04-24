@@ -17,12 +17,12 @@ import java.util.Date;
  * Created by AMIT on 21-Apr-16.
  */
 public class Utility {
-    public static String REMOVE_SOUND_VIDEO = "-y -i %s -vcodec copy -an %s";
-    public static String ADD_SOUND_VIDEO = "-y -i %s -i %s -c:v copy -c:a copy %s";
-    public  static String EXTRACT_AUDIO_VIDEO = "-y -i %s -vn %s";
-    public  static String IMAGE_FROM_VIDEO = "-y -i %s image%d.jpg";
-    public static String CLIP_AUDIO = "-y -i %s -strict experimental -ss %s -t %s %s";
-    public static String REMOVE_ADD_AUDIO_TO_VIDEO = "-y -i %s -i %s -c:v copy -map 0:v:0 -map 1:a:0 -c:a copy %s";
+    public static String REMOVE_SOUND_VIDEO = "-y,-i,%s,-vcodec,copy,-an,%s";
+    public static String ADD_SOUND_VIDEO = "-y,-i,%s,-i,%s,-c:v,copy,-c:a,copy,%s";
+    public  static String EXTRACT_AUDIO_VIDEO = "-y,-i,%s,-vn,%s";
+    public  static String IMAGE_FROM_VIDEO = "-y,-i,%s,image%d.jpg";
+    public static String CLIP_VIDEO_OR_AUDIO = "-y,-ss,%s,-i,%s,-t,%s,-c,copy,%s";
+    public static String REMOVE_ADD_AUDIO_TO_VIDEO = "-y,-i,%s,-i,%s,-c:v,copy,-map,0:v:0,-map,1:a:0,-c:a,copy,%s";
     public static void setupFfmpeg(Context context) {
         FFmpeg ffmpeg = FFmpeg.getInstance(context);
         try {
@@ -47,13 +47,27 @@ public class Utility {
     }
 
     public static String getDuration(String path, Context context) {
-        MediaPlayer mp = MediaPlayer.create(context, Uri.parse(path));
-        if(mp != null) {
-            int duration = mp.getDuration();
-            mp.release();
-            return getTimeForTrackFormat(duration);
+        if (!path.isEmpty()) {
+            MediaPlayer mp = MediaPlayer.create(context, Uri.parse(path));
+            if (mp != null) {
+                int duration = mp.getDuration();
+                mp.release();
+                return getTimeForTrackFormat(duration);
+            }
         }
         return getTimeForTrackFormat(0);
+    }
+
+    public static int getDurationinSec(String path, Context context) {
+        if (!path.isEmpty()) {
+            MediaPlayer mp = MediaPlayer.create(context, Uri.parse(path));
+            if (mp != null) {
+                int duration = mp.getDuration();
+                mp.release();
+                return duration / 1000;
+            }
+        }
+        return 0;
     }
 
     public static String getOutputPath() {
@@ -71,8 +85,8 @@ public class Utility {
         return path;
     }
 
-    public static String generateFilename() {
-        return "output" + String.valueOf(new Date().getTime());
+    public static String generateFilename(String prifix) {
+        return prifix + String.valueOf(new Date().getTime());
     }
 
     public static String getTimeForTrackFormat(int duration) {
