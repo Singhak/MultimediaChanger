@@ -39,6 +39,7 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
     Button vbrowseButton, trimVideo;
     Button abrowseButton, trimAudioButton, slowAudioButton, fastAudioButton;
     Button executeButton;
+    Button folderButton;
     String videopath, audioPath;
     String vfinalPath, afinalPath;
     String outputPath;
@@ -108,6 +109,7 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
         fastAudioButton = (Button) findViewById(R.id.fast_audio);
         abrowseText = (EditText) findViewById(R.id.apath);
         executeButton = (Button) findViewById(R.id.run);
+        folderButton = (Button) findViewById(R.id.outputFolder);
 
         abrowseButton.setOnClickListener(this);
         trimAudioButton.setOnClickListener(this);
@@ -116,6 +118,7 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
         fastAudioButton.setOnClickListener(this);
         trimVideo.setOnClickListener(this);
         executeButton.setOnClickListener(this);
+        folderButton.setOnClickListener(this);
     }
 
     @Override
@@ -346,6 +349,16 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
                 changeAudioSpeed("0.5");
             }
             break;
+            case R.id.outputFolder: {
+                String path = Utility.getOutputPath();
+                Uri myUri = Uri.parse(path);
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setDataAndType(myUri, "resource/folder");
+
+                if (intent.resolveActivityInfo(getPackageManager(), 0) != null) {
+                    startActivity(intent);
+                }
+            }
         }
     }
 

@@ -107,4 +107,12 @@
         android:layout_marginTop="8dp"
         android:text="Run Merge" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/outputFolder"
+        android:text="Open Output Folder"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"/>
+
 </RelativeLayout>
