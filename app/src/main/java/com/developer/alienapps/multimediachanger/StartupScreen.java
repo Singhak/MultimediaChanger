@@ -7,9 +7,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.os.PowerManager;
 import android.support.v7.app.AppCompatActivity;
-import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -28,11 +29,15 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
 
     final static int ON_VIDEO_REQUEST = 1;
     final static int ON_AUDIO_REQUEST = 2;
+    final static int START_PROGRESS_MSG = 1;
+    final static int STOP_PROGRESS_MSG = 2;
+    final static int FFMPEG_SUCESS_MSG = 3;
+    final static int FFMPEG_FAILURE_MSG = 4;
     private static final String TAG = StartupScreen.class.getSimpleName();
     EditText vbrowseText;
     EditText abrowseText;
     Button vbrowseButton, trimVideo;
-    Button abrowseButton, trimAudio;
+    Button abrowseButton, trimAudioButton, slowAudioButton, fastAudioButton;
     Button executeButton;
     String videopath, audioPath;
     String vfinalPath, afinalPath;
@@ -44,38 +49,72 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
      */
     private GoogleApiClient client;
 
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg.what == START_PROGRESS_MSG) {
+                progressBar.show();
+            } else if (msg.what == STOP_PROGRESS_MSG) {
+                progressBar.dismiss();
+                FFmpeg.getInstance(StartupScreen.this).killRunningProcesses();
+            } else if (msg.what == FFMPEG_FAILURE_MSG) {
+                progressBar.dismiss();
+                msgDialog("There is some problem either in input file or format");
+            } else if (msg.what == FFMPEG_SUCESS_MSG) {
+                progressBar.dismiss();
+                msgDialog("Output file at path : " + outputPath);
+            }
+
+        }
+    };
+    private String ffLogPath;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_startup_screen);
+        Utility.setupFfmpeg(this);
+        initUI();
+
+        progressBar = new ProgressDialog(StartupScreen.this);
+        progressBar.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressBar.setTitle("Work in Progress");
+//        progressBar.setMessage("Press the cancel button to end the operation");
+//        progressBar.setMax(100);
+//        progressBar.setProgress(0);
+
+        progressBar.setCancelable(false);
+        progressBar.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                handler.sendEmptyMessage(STOP_PROGRESS_MSG);
+            }
+        });
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+    }
+
+    private void initUI() {
         vbrowseButton = (Button) findViewById(R.id.vbrowse);
         trimVideo = (Button) findViewById(R.id.trim_video);
         vbrowseText = (EditText) findViewById(R.id.vpath);
         abrowseButton = (Button) findViewById(R.id.abrowse);
-        trimAudio = (Button) findViewById(R.id.trim_audio);
+        trimAudioButton = (Button) findViewById(R.id.trim_audio);
+        slowAudioButton = (Button) findViewById(R.id.slow_audio);
+        fastAudioButton = (Button) findViewById(R.id.fast_audio);
         abrowseText = (EditText) findViewById(R.id.apath);
         executeButton = (Button) findViewById(R.id.run);
 
-        Utility.setupFfmpeg(this);
         abrowseButton.setOnClickListener(this);
-        trimAudio.setOnClickListener(this);
+        trimAudioButton.setOnClickListener(this);
         vbrowseButton.setOnClickListener(this);
+        slowAudioButton.setOnClickListener(this);
+        fastAudioButton.setOnClickListener(this);
         trimVideo.setOnClickListener(this);
         executeButton.setOnClickListener(this);
-//        progressBar = new ProgressDialog(this);
-//        progressBar.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-//        progressBar.setTitle("FFmpeg4Android Transcoding...");
-//        progressBar.setMessage("Press the cancel button to end the operation");
-//        progressBar.setCancelable(false);
-       /* progressBar.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                FFmpeg.getInstance(StartupScreen.this).killRunningProcesses();
-            }
-        });*/
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     @Override
@@ -108,12 +147,14 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
                 @Override
                 public void onFailure(String s) {
                     Log.d(TAG, "onFailure: " + s);
-                    Toast.makeText(StartupScreen.this, "There is some problem : " + s, Toast.LENGTH_LONG).show();
+//                    Toast.makeText(StartupScreen.this, "There is some problem inmerging", Toast.LENGTH_LONG).show();
+                    handler.sendEmptyMessage(FFMPEG_FAILURE_MSG);
                 }
 
                 @Override
                 public void onSuccess(String s) {
                     Toast.makeText(StartupScreen.this, "Succesfully : " + outputPath, Toast.LENGTH_LONG).show();
+                    handler.sendEmptyMessage(FFMPEG_SUCESS_MSG);
                 }
 
                 @Override
@@ -123,9 +164,7 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
 
                 @Override
                 public void onStart() {
-                    progressBar = new ProgressDialog(StartupScreen.this);
-                    progressBar.setMessage("Processing...");
-                    progressBar.show();
+                    handler.sendEmptyMessage(START_PROGRESS_MSG);
                 }
 
                 @Override
@@ -148,12 +187,12 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
 
         final EditText trimStart = new EditText(this);
         trimStart.setHint("Leave it blank = trim from start");
-        trimStart.setInputType(InputType.TYPE_NUMBER_VARIATION_NORMAL);
+//        trimStart.setInputType(InputType.TYPE_NUMBER_VARIATION_NORMAL);
         layout.addView(trimStart);
 
         final EditText trimEnd = new EditText(this);
         trimEnd.setHint("Leave it blank = trim to end");
-        trimEnd.setInputType(InputType.TYPE_NUMBER_VARIATION_NORMAL);
+//        trimEnd.setInputType(InputType.TYPE_NUMBER_VARIATION_NORMAL);
         layout.addView(trimEnd);
 
         final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
@@ -178,8 +217,8 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
                     if (!trimEnd.getText().toString().isEmpty()) {
                         endTime = trimEnd.getText().toString();
                     }
-                    String temp = Utility.getOutputPath() + Utility.generateFilename("trimOut") + ".mp3";
-                    String cmd = String.format(Utility.CLIP_VIDEO_OR_AUDIO, vfinalPath, startTime, endTime, outputPath);
+                    String temp = Utility.getOutputPath() + Utility.generateFilename("trimOut") + ".mp4";
+                    String cmd = String.format(Utility.CLIP_VIDEO_OR_AUDIO, startTime, vfinalPath, endTime, temp);
                     vfinalPath = temp;
                     execFFmpegBinary(cmd);
                 } else if (requestId == ON_AUDIO_REQUEST) {
@@ -192,7 +231,7 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
                         endTime = trimEnd.getText().toString();
                     }
                     String temp = Utility.getOutputPath() + Utility.generateFilename("trimOut") + ".mp3";
-                    String cmd = String.format(Utility.CLIP_VIDEO_OR_AUDIO, afinalPath, startTime, endTime, outputPath);
+                    String cmd = String.format(Utility.CLIP_VIDEO_OR_AUDIO, startTime, afinalPath, endTime, temp);
                     afinalPath = temp;
                     execFFmpegBinary(cmd);
                 }
@@ -208,8 +247,6 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
         dialog.setCancelable(false);
         dialog.setCanceledOnTouchOutside(false);
         dialog.show();
-//        alertDialog.setCancelable(false);
-//        alertDialog.show();
     }
 
     @Override
@@ -292,7 +329,22 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
                 startActivityForResult(Intent.createChooser(intent, "Select Video"), ON_VIDEO_REQUEST);
             }
             break;
+            case R.id.fast_audio: {
+                changeAudioSpeed("2.0");
+            }
+            break;
+            case R.id.slow_audio: {
+                changeAudioSpeed("0.5");
+            }
+            break;
         }
+    }
+
+    private void changeAudioSpeed(String speed) {
+        String temp = Utility.getOutputPath() + Utility.generateFilename("trimOut") + ".mp3";
+        String cmd = String.format(Utility.CHANGE_AUDIO_SPEED, afinalPath, speed, temp);
+        afinalPath = temp;
+        execFFmpegBinary(cmd);
     }
 
     public void showMsg(String msg) {
@@ -307,5 +359,21 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
         });
 
         alertDialog.show();
+    }
+
+    private void msgDialog(String msg) {
+        new AlertDialog.Builder(StartupScreen.this)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setTitle("Result")
+                .setMessage(msg)
+                .setCancelable(false)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .create()
+                .show();
+
     }
 }

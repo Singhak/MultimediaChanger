@@ -73,6 +73,21 @@
         android:layout_centerInParent="true"
         android:text="Trim Audio" />
 
+    <Button
+        android:id="@+id/slow_audio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/abrowse"
+        android:layout_alignParentRight="true"
+        android:text="Slow Audio" />
+
+    <Button
+        android:id="@+id/fast_audio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/abrowse"
+        android:layout_alignParentLeft="true"
+        android:text="Speed Audio" />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

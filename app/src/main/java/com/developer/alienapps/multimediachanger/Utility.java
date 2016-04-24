@@ -22,6 +22,7 @@ public class Utility {
     public  static String EXTRACT_AUDIO_VIDEO = "-y,-i,%s,-vn,%s";
     public  static String IMAGE_FROM_VIDEO = "-y,-i,%s,image%d.jpg";
     public static String CLIP_VIDEO_OR_AUDIO = "-y,-ss,%s,-i,%s,-t,%s,-c,copy,%s";
+    public static String CHANGE_AUDIO_SPEED = "-y,-i,%s,-filter:a,atempo=%s,%s";
     public static String REMOVE_ADD_AUDIO_TO_VIDEO = "-y,-i,%s,-i,%s,-c:v,copy,-map,0:v:0,-map,1:a:0,-c:a,copy,%s";
     public static void setupFfmpeg(Context context) {
         FFmpeg ffmpeg = FFmpeg.getInstance(context);
