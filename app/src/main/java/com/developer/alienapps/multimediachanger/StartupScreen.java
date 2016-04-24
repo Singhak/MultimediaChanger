@@ -42,6 +42,7 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
     String videopath, audioPath;
     String vfinalPath, afinalPath;
     String outputPath;
+    boolean isIntermideate;
     private ProgressDialog progressBar;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -154,7 +155,10 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
                 @Override
                 public void onSuccess(String s) {
                     Toast.makeText(StartupScreen.this, "Succesfully : " + outputPath, Toast.LENGTH_LONG).show();
-                    handler.sendEmptyMessage(FFMPEG_SUCESS_MSG);
+                    if (!isIntermideate)
+                        handler.sendEmptyMessage(FFMPEG_SUCESS_MSG);
+                    else
+                        progressBar.dismiss();
                 }
 
                 @Override
@@ -170,7 +174,6 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
                 @Override
                 public void onFinish() {
                     Log.d(TAG, "Finished command : ffmpeg " + comd);
-
                 }
             });
         } catch (FFmpegCommandAlreadyRunningException e) {
@@ -220,6 +223,7 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
                     String temp = Utility.getOutputPath() + Utility.generateFilename("trimOut") + ".mp4";
                     String cmd = String.format(Utility.CLIP_VIDEO_OR_AUDIO, startTime, vfinalPath, endTime, temp);
                     vfinalPath = temp;
+                    isIntermideate = true;
                     execFFmpegBinary(cmd);
                 } else if (requestId == ON_AUDIO_REQUEST) {
                     int duration = Utility.getDurationinSec(afinalPath, StartupScreen.this);
@@ -233,6 +237,7 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
                     String temp = Utility.getOutputPath() + Utility.generateFilename("trimOut") + ".mp3";
                     String cmd = String.format(Utility.CLIP_VIDEO_OR_AUDIO, startTime, afinalPath, endTime, temp);
                     afinalPath = temp;
+                    isIntermideate = true;
                     execFFmpegBinary(cmd);
                 }
             }
@@ -312,6 +317,7 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
             case R.id.run: {
                 outputPath = Utility.getOutputPath() + Utility.generateFilename("finalVideo") + ".mp4";
                 String cmd = String.format(Utility.REMOVE_ADD_AUDIO_TO_VIDEO, vfinalPath, afinalPath, outputPath);
+                isIntermideate = false;
                 execFFmpegBinary(cmd);
             }
             break;
@@ -330,10 +336,12 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
             }
             break;
             case R.id.fast_audio: {
+                isIntermideate = true;
                 changeAudioSpeed("2.0");
             }
             break;
             case R.id.slow_audio: {
+                isIntermideate = true;
                 changeAudioSpeed("0.5");
             }
             break;
