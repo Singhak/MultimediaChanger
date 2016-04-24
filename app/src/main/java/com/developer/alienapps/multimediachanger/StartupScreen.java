@@ -125,6 +125,7 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
                 Uri selectedImageUri = data.getData();
                 vfinalPath = videopath = selectedImageUri.getPath();
                 vbrowseText.setText(videopath);
+
 //                String time = Utility.getDuration(videopath, this);
 //                Toast.makeText(this, time, Toast.LENGTH_LONG).show();
             } else if (requestCode == ON_AUDIO_REQUEST) {
@@ -154,7 +155,7 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
 
                 @Override
                 public void onSuccess(String s) {
-                    Toast.makeText(StartupScreen.this, "Succesfully : " + outputPath, Toast.LENGTH_LONG).show();
+                    Toast.makeText(StartupScreen.this, "Succesfully", Toast.LENGTH_LONG).show();
                     if (!isIntermideate)
                         handler.sendEmptyMessage(FFMPEG_SUCESS_MSG);
                     else
@@ -315,7 +316,7 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
             }
             break;
             case R.id.run: {
-                outputPath = Utility.getOutputPath() + Utility.generateFilename("finalVideo") + ".mp4";
+                outputPath = Utility.getOutputPath() + Utility.generateFilename(Utility.getValidFileNameFromPath(vfinalPath)) + ".mp4";
                 String cmd = String.format(Utility.REMOVE_ADD_AUDIO_TO_VIDEO, vfinalPath, afinalPath, outputPath);
                 isIntermideate = false;
                 execFFmpegBinary(cmd);
@@ -372,7 +373,7 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
     private void msgDialog(String msg) {
         new AlertDialog.Builder(StartupScreen.this)
                 .setIcon(android.R.drawable.ic_dialog_alert)
-                .setTitle("Result")
+                .setTitle("Message")
                 .setMessage(msg)
                 .setCancelable(false)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {

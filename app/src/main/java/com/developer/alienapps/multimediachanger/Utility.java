@@ -4,6 +4,7 @@ import android.content.Context;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Environment;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.github.hiteshsondhi88.libffmpeg.FFmpeg;
@@ -17,6 +18,7 @@ import java.util.Date;
  * Created by AMIT on 21-Apr-16.
  */
 public class Utility {
+    public static final String TAG = "Utility";
     public static String REMOVE_SOUND_VIDEO = "-y,-i,%s,-vcodec,copy,-an,%s";
     public static String ADD_SOUND_VIDEO = "-y,-i,%s,-i,%s,-c:v,copy,-c:a,copy,%s";
     public  static String EXTRACT_AUDIO_VIDEO = "-y,-i,%s,-vn,%s";
@@ -87,7 +89,7 @@ public class Utility {
     }
 
     public static String generateFilename(String prifix) {
-        return prifix + String.valueOf(new Date().getTime());
+        return prifix +"_"+ String.valueOf(((new Date().getTime())/(1000000000))/1000);
     }
 
     public static String getTimeForTrackFormat(int duration) {
@@ -115,5 +117,17 @@ public class Utility {
             result += seconds;
         }
         return result;
+    }
+
+    public static String getValidFileNameFromPath(String path) {
+        int startIndex = path.lastIndexOf("/") + 1;
+        int endIndex = path.lastIndexOf(".");
+
+        String name = path.substring(startIndex, endIndex);
+        String ext = path.substring(endIndex + 1);
+        Log.d(TAG, "name: " + name + " ext: " + ext);
+        String validName = (name.replaceAll("\\Q.\\E", "_")).replaceAll(" ", "_");
+        Log.d(TAG, "Valid_name: " + validName + " ext: " + ext);
+        return validName;
     }
 }
