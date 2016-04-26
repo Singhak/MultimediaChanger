@@ -9,4 +9,4 @@ Known issue:
 #It may not support some audio and video format since I didnot test for all formats.
 #It suppor API level 16 i.e. kitkat to lolipop I only test on KitKat 4.4.
 #
-![Demo](https://github.com/Singhak/MultimediaChanger/blob/master/trimOut_1.mp4)
+![Demo Video of App](https://github.com/Singhak/MultimediaChanger/blob/master/trimOut_1.mp4)
