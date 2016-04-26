@@ -238,7 +238,11 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
                     if (!trimEnd.getText().toString().isEmpty()) {
                         endTime = trimEnd.getText().toString();
                     }
+
                     String temp = Utility.getOutputPath() + Utility.generateFilename("trimOut") + ".mp3";
+                    if (Utility.getValidFileNameExth(afinalPath).contains("m4a")) {
+                        temp = Utility.getOutputPath() + Utility.generateFilename("trimOut") + ".aac";
+                    }
                     String cmd = String.format(Utility.CLIP_VIDEO_OR_AUDIO, startTime, afinalPath, endTime, temp);
                     afinalPath = temp;
                     isIntermideate = true;

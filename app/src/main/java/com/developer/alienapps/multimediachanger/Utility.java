@@ -89,7 +89,7 @@ public class Utility {
     }
 
     public static String generateFilename(String prifix) {
-        return prifix +"_"+ String.valueOf(((new Date().getTime())/(1000000000))/1000);
+        return prifix +"_"+ String.valueOf(((new Date().getTime())%(1000000000))%1000);
     }
 
     public static String getTimeForTrackFormat(int duration) {
@@ -129,5 +129,17 @@ public class Utility {
         String validName = (name.replaceAll("\\Q.\\E", "_")).replaceAll(" ", "_");
         Log.d(TAG, "Valid_name: " + validName + " ext: " + ext);
         return validName;
+    }
+
+    public static String getValidFileNameExth(String path) {
+        int startIndex = path.lastIndexOf("/") + 1;
+        int endIndex = path.lastIndexOf(".");
+
+        String name = path.substring(startIndex, endIndex);
+        String ext = path.substring(endIndex + 1);
+        Log.d(TAG, "name: " + name + " ext: " + ext);
+        String validName = (name.replaceAll("\\Q.\\E", "_")).replaceAll(" ", "_");
+        Log.d(TAG, "Valid_name: " + validName + " ext: " + ext);
+        return ext;
     }
 }
