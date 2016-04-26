@@ -6,5 +6,7 @@ I provide one main Feature to merge video and audio by removing existing video s
 Before merging you can perform extrra manupulation on audio i.e you make audio faast or slow.
 
 Known issue:
-It may not support some audio and video format since I didnot test for all formats.
-It suppor API level 16 i.e. kitkat to lolipop I only test on KitKat 4.4.
+#It may not support some audio and video format since I didnot test for all formats.
+#It suppor API level 16 i.e. kitkat to lolipop I only test on KitKat 4.4.
+#
+![Demo](https://github.com/Singhak/MultimediaChanger/blob/master/trimOut_1.mp4)
