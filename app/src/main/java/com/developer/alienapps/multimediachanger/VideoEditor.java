@@ -36,10 +36,12 @@ public class VideoEditor extends Activity implements View.OnClickListener {
     Button flipButtonm, extractImageButton, replaceAudi0Button;
     Button browseVideoButton, browseAudioButton;
     VideoView videoView;
-    String videopath, audiopath, outputPath;
+    static String videopath, audiopath;
+    String outputPath;
     RelativeLayout relativeLayout;
     EditText abrowseText;
     ProgressDialog progressBar;
+    boolean audioReplace = false;
 
     private Handler handler = new Handler() {
         @Override
@@ -51,11 +53,14 @@ public class VideoEditor extends Activity implements View.OnClickListener {
                 FFmpeg.getInstance(VideoEditor.this).killRunningProcesses();
             } else if (msg.what == Utility.FFMPEG_FAILURE_MSG) {
                 progressBar.dismiss();
+                audioReplace = false;
                 msgDialog("There is some problem either in input file or format");
             } else if (msg.what == Utility.FFMPEG_SUCESS_MSG) {
                 progressBar.dismiss();
+                audioReplace = false;
                 msgDialog("Output file at path : " + outputPath);
-                playVideo();
+                videoView.suspend();
+                playVideo(outputPath);
             }
 
         }
@@ -65,7 +70,7 @@ public class VideoEditor extends Activity implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.editor_layout);
-        Utility.setupFfmpeg(this);
+//        Utility.setupFfmpeg(this);
         progressBar = new ProgressDialog(VideoEditor.this);
         progressBar.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressBar.setTitle("Work in Progress");
@@ -82,33 +87,46 @@ public class VideoEditor extends Activity implements View.OnClickListener {
     private void initUI() {
         trimButton = (Button) findViewById(R.id.trim);
         trimButton.setOnClickListener(this);
+
         audioSpeedButton = (Button) findViewById(R.id.aspeed);
         audioSpeedButton.setOnClickListener(this);
+
         videoSpeedButton = (Button) findViewById(R.id.vspeed);
         videoSpeedButton.setOnClickListener(this);
+
         bothSpeedButton = (Button) findViewById(R.id.backA);
         bothSpeedButton.setOnClickListener(this);
+
         muteButton = (Button) findViewById(R.id.mute);
         muteButton.setOnClickListener(this);
+
         extractImageButton = (Button) findViewById(R.id.get_img);
         extractImageButton.setOnClickListener(this);
+
         extractaudioButton = (Button) findViewById(R.id.get_audio);
         extractaudioButton.setOnClickListener(this);
+
         flipButtonm = (Button) findViewById(R.id.flip);
         flipButtonm.setOnClickListener(this);
+
         replaceAudi0Button = (Button) findViewById(R.id.change_audio);
         replaceAudi0Button.setOnClickListener(this);
+
         browseVideoButton = (Button) findViewById(R.id.vbrowse_video);
         browseVideoButton.setOnClickListener(this);
+
         browseAudioButton = (Button) findViewById(R.id.audio_browse);
         browseAudioButton.setOnClickListener(this);
+
         videoView = (VideoView) findViewById(R.id.videoplayer);
         videoView.setMediaController(new MediaController(this));
+
         videoView.requestFocus();
 
 
         relativeLayout = (RelativeLayout) findViewById(R.id.audio_browse_layout);
         abrowseText = (EditText) findViewById(R.id.audio_path);
+
     }
 
 
@@ -146,7 +164,8 @@ public class VideoEditor extends Activity implements View.OnClickListener {
             break;
             case R.id.backA: {
                 Intent intent = new Intent(VideoEditor.this, StartupScreen.class);
-                VideoEditor.this.startActivity(intent);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
             }
             break;
             case R.id.mute: {
@@ -170,9 +189,12 @@ public class VideoEditor extends Activity implements View.OnClickListener {
             }
             break;
             case R.id.get_img: {
+                Log.d(TAG, "onClick: getImage :"+id);
+                Log.d(TAG, "onClick: getImage :"+videopath);
                 if (videopath != null && !videopath.isEmpty()) {
                     outputPath = Utility.getOutputPath() + Utility.generateFilename("clipimage");
                     String cmd = String.format(Utility.IMAGE_FROM_VIDEO, videopath, outputPath);
+                    Log.d(TAG, "onClick: getImage :"+cmd);
                     execFFmpegBinary(cmd);
                 } else {
                     showMsg("Browse a video first");
@@ -193,19 +215,22 @@ public class VideoEditor extends Activity implements View.OnClickListener {
                 Intent intent = new Intent();
                 intent.setType("video/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select Video"), Utility.ON_VIDEO_REQUEST);
+                this.startActivityForResult(Intent.createChooser(intent, "Select Video"), Utility.ON_VIDEO_REQUEST);
             }
             break;
             case R.id.change_audio: {
-                if (videopath != null && !videopath.isEmpty() && audiopath != null && !audiopath.isEmpty()) {
-                    outputPath = Utility.getOutputPath() + Utility.generateFilename("finalVideo") + ".mp4";
-                    String cmd = String.format(Utility.REMOVE_ADD_AUDIO_TO_VIDEO, videopath, audiopath, outputPath);
-                    execFFmpegBinary(cmd);
-                } else {
-                    showMsg("Browse a video first");
-                }
+                audioReplace = true;
+               relativeLayout.setVisibility(View.VISIBLE);
             }
             break;
+
+            case R.id.abrowse :
+            {
+                Intent intent = new Intent();
+                intent.setType("audio/mp3/m4a/ogg");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                this.startActivityForResult(Intent.createChooser(intent, "Select Audio"), Utility.ON_AUDIO_REQUEST);
+            }
         }
     }
 
@@ -216,20 +241,38 @@ public class VideoEditor extends Activity implements View.OnClickListener {
             if (requestCode == Utility.ON_VIDEO_REQUEST) {
                 Uri selectedImageUri = data.getData();
                 videopath = selectedImageUri.getPath();
-                playVideo();
+                playVideo(videopath);
 //                String time = Utility.getDuration(videopath, this);
 //                Toast.makeText(this, time, Toast.LENGTH_LONG).show();
+                if (audioReplace) {
+                    replaceSound();
+                }
             } else if (requestCode == Utility.ON_AUDIO_REQUEST) {
                 Uri selectedImageUri = data.getData();
                 audiopath = selectedImageUri.getPath();
                 abrowseText.setText(audiopath);
+                if (audioReplace){
+                    replaceSound();
+                }
             }
 
         }
     }
 
-    private void playVideo() {
-        videoView.setVideoPath(videopath);
+    public void replaceSound() {
+        if (videopath != null && !videopath.isEmpty() && audiopath != null && !audiopath.isEmpty()) {
+            outputPath = Utility.getOutputPath() + Utility.generateFilename("finalVideo") + ".mp4";
+            String cmd = String.format(Utility.REMOVE_ADD_AUDIO_TO_VIDEO, videopath, audiopath, outputPath);
+            execFFmpegBinary(cmd);
+            relativeLayout.setVisibility(View.INVISIBLE);
+            audioReplace = false;
+        } else {
+            showMsg("Browse a video and audio to replace");
+        }
+    }
+
+    private void playVideo(String outputPath) {
+        videoView.setVideoPath(outputPath);
         videoView.start();
     }
 

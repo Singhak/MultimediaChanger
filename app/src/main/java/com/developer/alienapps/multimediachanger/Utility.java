@@ -30,7 +30,7 @@ public class Utility {
     public static String REMOVE_SOUND_VIDEO = "-y,-i,%s,-vcodec,copy,-an,%s";
     public static String ADD_SOUND_VIDEO = "-y,-i,%s,-i,%s,-c:v,copy,-c:a,copy,%s";
     public  static String EXTRACT_AUDIO_VIDEO = "-y,-i,%s,-vn,%s";
-    public  static String IMAGE_FROM_VIDEO = "-y,-i,%s,-ss,5,-vframes,1,%s_%d.jpg";
+    public  static String IMAGE_FROM_VIDEO = "-y,-i,%s,-ss,5,-vframes,1,%s.jpg";
     public static String CLIP_VIDEO_OR_AUDIO = "-y,-ss,%s,-i,%s,-t,%s,-c,copy,%s";
     public static String CHANGE_AUDIO_SPEED = "-y,-i,%s,-filter:a,atempo=%s,%s";
     public static String CHANGE_VIDEO_AUDIO_SPEED = "-y,-i,%s,-filter:a,atempo=2.0,-vn,%s";

@@ -20,7 +20,7 @@ public class StartScreen extends Activity {
         setContentView(R.layout.start_layout);
         partAButton = (Button) findViewById(R.id.part_a);
         partBButton = (Button) findViewById(R.id.part_b);
-
+Utility.setupFfmpeg(this);
         partAButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

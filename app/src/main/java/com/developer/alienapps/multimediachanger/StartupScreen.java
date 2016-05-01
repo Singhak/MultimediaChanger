@@ -70,7 +70,7 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_startup_screen);
-        Utility.setupFfmpeg(this);
+//        Utility.setupFfmpeg(this);
         initUI();
 
         progressBar = new ProgressDialog(StartupScreen.this);
@@ -329,14 +329,14 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
                 Intent intent = new Intent();
                 intent.setType("audio/mp3/m4a/ogg");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select Audio"), Utility.ON_AUDIO_REQUEST);
+                this.startActivityForResult(Intent.createChooser(intent, "Select Audio"), Utility.ON_AUDIO_REQUEST);
             }
             break;
             case R.id.vbrowse: {
                 Intent intent = new Intent();
                 intent.setType("video/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select Video"), Utility.ON_VIDEO_REQUEST);
+                this.startActivityForResult(Intent.createChooser(intent, "Select Video"), Utility.ON_VIDEO_REQUEST);
             }
             break;
             case R.id.fast_audio: {
@@ -352,6 +352,7 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
             case R.id.backB :
             {
                 Intent intent = new Intent(StartupScreen.this, VideoEditor.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 StartupScreen.this.startActivity(intent);
             }
             break;
