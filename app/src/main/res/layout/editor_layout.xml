@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <VideoView
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        android:id="@+id/videoplayer"
+        android:layout_weight="1"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Browse Video"
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/vbrowse_video"/>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/audio_browse_layout"
+        android:visibility="gone"
+        >
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:id="@+id/audio_path"
+            android:hint="BrowseAudio"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:textSize="15dp"
+            android:text="Browse Audio"
+            android:id="@+id/audio_browse"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mute"
+            android:textSize="15dp"
+            android:layout_alignParentLeft="true"
+            android:id="@+id/mute"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Trim"
+            android:id="@+id/trim"
+            android:layout_alignParentRight="true"
+            />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Replace Audio"
+            android:layout_centerInParent="true"
+            android:layout_alignParentTop="true"
+            android:id="@+id/change_audio"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="VFlip"
+            android:id="@+id/flip"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/mute"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Extrac Audio"
+            android:textSize="12dp"
+            android:id="@+id/get_audio"
+            android:layout_below="@id/change_audio"
+            android:layout_centerInParent="true"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Extrac Image"
+            android:textSize="12dp"
+            android:id="@+id/get_img"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/trim"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Video Speed"
+            android:id="@+id/vspeed"
+            android:textSize="12dp"
+            android:layout_centerInParent="true"
+            android:layout_below="@id/get_audio"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Audio Speed"
+            android:id="@+id/aspeed"
+            android:textSize="12dp"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/flip"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Back to A"
+            android:textSize="12dp"
+            android:id="@+id/backA"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/get_img"/>
+    </RelativeLayout>
+
+
+</LinearLayout>

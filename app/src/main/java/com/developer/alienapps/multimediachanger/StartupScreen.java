@@ -27,19 +27,13 @@ import com.google.android.gms.common.api.GoogleApiClient;
 
 public class StartupScreen extends AppCompatActivity implements View.OnClickListener {
 
-    final static int ON_VIDEO_REQUEST = 1;
-    final static int ON_AUDIO_REQUEST = 2;
-    final static int START_PROGRESS_MSG = 1;
-    final static int STOP_PROGRESS_MSG = 2;
-    final static int FFMPEG_SUCESS_MSG = 3;
-    final static int FFMPEG_FAILURE_MSG = 4;
     private static final String TAG = StartupScreen.class.getSimpleName();
     EditText vbrowseText;
     EditText abrowseText;
     Button vbrowseButton, trimVideo;
     Button abrowseButton, trimAudioButton, slowAudioButton, fastAudioButton;
     Button executeButton;
-    Button folderButton;
+    Button folderButton, backButton;
     String videopath, audioPath;
     String vfinalPath, afinalPath;
     String outputPath;
@@ -54,15 +48,15 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            if (msg.what == START_PROGRESS_MSG) {
+            if (msg.what == Utility.START_PROGRESS_MSG) {
                 progressBar.show();
-            } else if (msg.what == STOP_PROGRESS_MSG) {
+            } else if (msg.what == Utility.STOP_PROGRESS_MSG) {
                 progressBar.dismiss();
                 FFmpeg.getInstance(StartupScreen.this).killRunningProcesses();
-            } else if (msg.what == FFMPEG_FAILURE_MSG) {
+            } else if (msg.what == Utility.FFMPEG_FAILURE_MSG) {
                 progressBar.dismiss();
                 msgDialog("There is some problem either in input file or format");
-            } else if (msg.what == FFMPEG_SUCESS_MSG) {
+            } else if (msg.what == Utility.FFMPEG_SUCESS_MSG) {
                 progressBar.dismiss();
                 msgDialog("Output file at path : " + outputPath);
             }
@@ -90,7 +84,7 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
         progressBar.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                handler.sendEmptyMessage(STOP_PROGRESS_MSG);
+                handler.sendEmptyMessage(Utility.STOP_PROGRESS_MSG);
             }
         });
 
@@ -119,19 +113,21 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
         trimVideo.setOnClickListener(this);
         executeButton.setOnClickListener(this);
         folderButton.setOnClickListener(this);
+        backButton = (Button) findViewById(R.id.backB);
+        backButton.setOnClickListener(this);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
-            if (requestCode == ON_VIDEO_REQUEST) {
+            if (requestCode == Utility.ON_VIDEO_REQUEST) {
                 Uri selectedImageUri = data.getData();
                 vfinalPath = videopath = selectedImageUri.getPath();
                 vbrowseText.setText(videopath);
 
 //                String time = Utility.getDuration(videopath, this);
 //                Toast.makeText(this, time, Toast.LENGTH_LONG).show();
-            } else if (requestCode == ON_AUDIO_REQUEST) {
+            } else if (requestCode == Utility.ON_AUDIO_REQUEST) {
                 Uri selectedImageUri = data.getData();
                 afinalPath = audioPath = selectedImageUri.getPath();
                 abrowseText.setText(audioPath);
@@ -153,14 +149,14 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
                 public void onFailure(String s) {
                     Log.d(TAG, "onFailure: " + s);
 //                    Toast.makeText(StartupScreen.this, "There is some problem inmerging", Toast.LENGTH_LONG).show();
-                    handler.sendEmptyMessage(FFMPEG_FAILURE_MSG);
+                    handler.sendEmptyMessage(Utility.FFMPEG_FAILURE_MSG);
                 }
 
                 @Override
                 public void onSuccess(String s) {
                     Toast.makeText(StartupScreen.this, "Succesfully", Toast.LENGTH_LONG).show();
                     if (!isIntermideate)
-                        handler.sendEmptyMessage(FFMPEG_SUCESS_MSG);
+                        handler.sendEmptyMessage(Utility.FFMPEG_SUCESS_MSG);
                     else
                         progressBar.dismiss();
                 }
@@ -172,7 +168,7 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
 
                 @Override
                 public void onStart() {
-                    handler.sendEmptyMessage(START_PROGRESS_MSG);
+                    handler.sendEmptyMessage(Utility.START_PROGRESS_MSG);
                 }
 
                 @Override
@@ -215,7 +211,7 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
                 }
                 String startTime = "0";
                 String endTime = "0";
-                if (requestId == ON_VIDEO_REQUEST) {
+                if (requestId == Utility.ON_VIDEO_REQUEST) {
                     int duration = Utility.getDurationinSec(vfinalPath, StartupScreen.this);
                     endTime = String.valueOf(duration);
                     if (!trimStart.getText().toString().isEmpty()) {
@@ -229,7 +225,7 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
                     vfinalPath = temp;
                     isIntermideate = true;
                     execFFmpegBinary(cmd);
-                } else if (requestId == ON_AUDIO_REQUEST) {
+                } else if (requestId == Utility.ON_AUDIO_REQUEST) {
                     int duration = Utility.getDurationinSec(afinalPath, StartupScreen.this);
                     endTime = String.valueOf(duration);
                     if (!trimStart.getText().toString().isEmpty()) {
@@ -308,7 +304,7 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
         switch (id) {
             case R.id.trim_audio: {
                 if (audioPath != null && !audioPath.isEmpty()) {
-                    trimDialog(ON_AUDIO_REQUEST);
+                    trimDialog(Utility.ON_AUDIO_REQUEST);
                 } else {
                     showMsg("Browse a audio first");
                 }
@@ -316,7 +312,7 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
             break;
             case R.id.trim_video: {
                 if (videopath != null && !videopath.isEmpty()) {
-                    trimDialog(ON_VIDEO_REQUEST);
+                    trimDialog(Utility.ON_VIDEO_REQUEST);
                 } else {
                     showMsg("Browse a video first");
                 }
@@ -333,14 +329,14 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
                 Intent intent = new Intent();
                 intent.setType("audio/mp3/m4a/ogg");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select Audio"), ON_AUDIO_REQUEST);
+                startActivityForResult(Intent.createChooser(intent, "Select Audio"), Utility.ON_AUDIO_REQUEST);
             }
             break;
             case R.id.vbrowse: {
                 Intent intent = new Intent();
                 intent.setType("video/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select Video"), ON_VIDEO_REQUEST);
+                startActivityForResult(Intent.createChooser(intent, "Select Video"), Utility.ON_VIDEO_REQUEST);
             }
             break;
             case R.id.fast_audio: {
@@ -351,6 +347,12 @@ public class StartupScreen extends AppCompatActivity implements View.OnClickList
             case R.id.slow_audio: {
                 isIntermideate = true;
                 changeAudioSpeed("0.5");
+            }
+            break;
+            case R.id.backB :
+            {
+                Intent intent = new Intent(StartupScreen.this, VideoEditor.class);
+                StartupScreen.this.startActivity(intent);
             }
             break;
             case R.id.outputFolder: {
